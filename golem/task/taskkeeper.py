@@ -136,6 +136,10 @@ class CompTaskKeeper:
         return self.active_tasks[task_id].header.environment
 
     @handle_key_error
+    def get_task_header(self, task_id):
+        return self.active_tasks[task_id].header
+
+    @handle_key_error
     def receive_subtask(self, comp_task_def):
         logger.debug('CT.receive_subtask()')
         if not self.check_comp_task_def(comp_task_def):
@@ -167,11 +171,6 @@ class CompTaskKeeper:
         if comp_task_def['subtask_id'] in task.subtasks:
             logger.info(not_accepted_message, *log_args,
                         "Definition of this subtask was already received.")
-            return False
-        if comp_task_def['environment'] != task.header.environment:
-            msg = "Expected environment: %s, received: %s." % (
-                task.header.environment, comp_task_def['environment'])
-            logger.info(not_accepted_message, *log_args, msg)
             return False
         return True
 
@@ -235,7 +234,7 @@ class TaskHeaderKeeper:
             max_tasks_per_requestor=10,
             task_archiver=None):
         # all computing tasks that this node knows about
-        self.task_headers = {}
+        self.task_headers = {}  # type: Dict[str, TaskHeader]
         # ids of tasks that this node may try to compute
         self.supported_tasks = []
         # results of tasks' support checks
